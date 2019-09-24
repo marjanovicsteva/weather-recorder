@@ -19,7 +19,7 @@ class Main {
     /*
      * CITATI .env FAJL ZA TAJNI API kljuc https://openweathermap.org/api
      */
-    var apiKey = System.getenv("apiKey");
+    String apiKey = System.getenv("apiKey");
 
     api += apiKey;
 
@@ -38,13 +38,13 @@ class Main {
 
     JSONObject jsonObject = (JSONObject) parser.parse(odgovor);
     System.out.println(((JSONObject) jsonObject.get("main")).get("temp"));
-	
+
     /**
      * Upisivanje u bazu podataka
      */
 
     BufferedReader citac = new BufferedReader(new FileReader("./.env"));
-    citac.readLine(); // Preskoci prvi red koji predstavlja 
+    citac.readLine(); // Preskoci prvi red koji predstavlja
     String lozinka = citac.readLine();
 
     try {
