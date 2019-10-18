@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.Scanner;
 import java.util.Arrays;
+import java.util.Calendar;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -37,7 +38,7 @@ class Main {
     JSONParser parser = new JSONParser();
 
     JSONObject jsonObject = (JSONObject) parser.parse(odgovor);
-    System.out.println(((JSONObject) jsonObject.get("main")).get("temp"));
+    double temperatura = (Double) ((JSONObject) jsonObject.get("main")).get("temp");
 
     /**
      * Upisivanje u bazu podataka
@@ -50,23 +51,17 @@ class Main {
     try {
     	Class.forName("com.mysql.jdbc.Driver");
 	Connection konekcija = DriverManager.getConnection("jdbc:mysql://localhost:3306/weather?autoReconnect=true&useSSL=false", "weather", lozinka);
-	Statement izjava = konekcija.createStatement();
-	ResultSet rs = izjava.executeQuery("SELECT * FROM weather");
-	/**
-	 * Ispis SQL tabele naucen sa sledeceg linka
-	 * https://stackoverflow.com/a/28165814
-	 */
-	ResultSetMetaData rsmd = rs.getMetaData();
-	int brojKolona = rsmd.getColumnCount();
-	while (rs.next()) {
-	    for (int i = 1; i <= brojKolona; i++) {
-	        if (i > 1) System.out.print(",  ");
-	        String columnValue = rs.getString(i);
-	        System.out.print(columnValue + " " + rsmd.getColumnName(i));
-	   }
 
-	   System.out.println("");
-	}
+	Calendar kalendar = Calendar.getInstance();
+	java.sql.Date datum = new java.sql.Date(kalendar.getTime().getTime());
+
+	String izjava = "INSERT INTO `weather` (`temperatura`, `datum`) VALUES (?, ?)";
+	PreparedStatement pripremaIzjave = konekcija.prepareStatement(izjava);
+	pripremaIzjave.setDouble(1, (Double)temperatura);
+	pripremaIzjave.setDate(2, datum);
+
+	pripremaIzjave.execute();
+
 	konekcija.close();
     } catch (ClassNotFoundException e) {
     	System.err.println("ClassNotFoundException: " + e.getMessage());
